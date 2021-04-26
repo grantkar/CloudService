@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="600.0" prefWidth="800.0" stylesheets="/view/styles.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.MainController">
+   <children>
+
+       <MenuBar prefHeight="26.0" prefWidth="80.0">
+           <Menu text="File">
+               <MenuItem onAction="#copyAction" text="Copy" />
+               <MenuItem text="Exit Login" />
+               <MenuItem onAction="#exitMainWindow" text="Exit" />
+           </Menu>
+       </MenuBar>
+
+
+      <ListView fx:id="filesOnLocalList" layoutX="13.0" layoutY="131.0" onMouseClicked="#filesListClicked" prefHeight="337.0" prefWidth="359.0" AnchorPane.leftAnchor="10" AnchorPane.rightAnchor="430.8" />
+      <ListView fx:id="filesListOnServer" layoutX="426.0" layoutY="131.0" onMouseClicked="#filesListClicked" prefHeight="338.0" prefWidth="359.0" AnchorPane.rightAnchor="10" />
+
+      <TextField fx:id="pathField" layoutX="13.0" layoutY="53.0" prefHeight="26.0" prefWidth="773.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" />
+
+      <Button layoutX="14.0" layoutY="536.0" mnemonicParsing="false" onAction="#sendFileToServer" prefHeight="26.0" prefWidth="158.0" text="SEND" AnchorPane.leftAnchor="10.0" />
+      <Button layoutX="214.0" layoutY="536.0" mnemonicParsing="false" onAction="#deleteAction" prefHeight="26.0" prefWidth="158.0" text="DELETE" AnchorPane.leftAnchor="214.0" />
+      <Button layoutX="426.0" layoutY="536.0" mnemonicParsing="false" onAction="#downloadFileFromServer" prefHeight="26.0" prefWidth="158.0" text="DOWNLOAD" AnchorPane.rightAnchor="216.0" />
+      <Button layoutX="626.0" layoutY="536.0" mnemonicParsing="false" onAction="#renameFileAction" prefHeight="26.0" prefWidth="158.0" text="RENAME" AnchorPane.rightAnchor="10.0" />
+      <Button layoutX="566.0" layoutY="488.0" mnemonicParsing="false" onAction="#sendUpdateFileToServer" prefHeight="26.0" prefWidth="80.0" text="UPDATE" />
+      <Button layoutX="678.0" layoutY="14.0" mnemonicParsing="false" onAction="#sendConnectToServer" prefHeight="26.0" prefWidth="112.0" text="Connect" />
+
+      <Text layoutX="158.0" layoutY="115.0" strokeType="OUTSIDE" strokeWidth="0.0" text="My File" textAlignment="CENTER" wrappingWidth="112.0" />
+      <Text layoutX="550.0" layoutY="115.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Server" textAlignment="CENTER" wrappingWidth="112.0" />
+
+
+
+   </children>
+
+</AnchorPane>
