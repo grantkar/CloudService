@@ -1,6 +1,5 @@
 package server;
 
-import io.netty.channel.EventLoopGroup;
 import server.factory.Factory;
 
 public class StartServer {

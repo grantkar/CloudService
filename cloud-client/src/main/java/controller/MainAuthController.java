@@ -1,13 +1,10 @@
 package controller;
 
-import factory.Factory;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -17,7 +14,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import service.NetworkService;
 import service.impl.NettyNetworkService;
-import supportClass.CurrentLogin;
+import domain.CurrentLogin;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +25,7 @@ public class MainAuthController implements Initializable {
 
 
 
-    NettyNetworkService networkService = new NettyNetworkService();
+    NetworkService networkService = new NettyNetworkService();
 
     @FXML
     Button finalRegistrationButton;
@@ -82,13 +79,7 @@ public class MainAuthController implements Initializable {
     Thread OpeningPanelServerListener = new Thread(() -> {
         for (;;){
             Object serverMessage = null;
-            try {
-                serverMessage = networkService.readIncomingObject();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
+            serverMessage = networkService.readIncomingObject();
             if (serverMessage.toString().startsWith("userIsValid/")){
                 String[] receivedWords = serverMessage.toString().split("/");
                 String login = receivedWords[1];

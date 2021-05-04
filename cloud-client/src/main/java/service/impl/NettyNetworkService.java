@@ -1,8 +1,8 @@
 package service.impl;
 
+import domain.*;
 import io.netty.handler.codec.serialization.ObjectDecoderInputStream;
 import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
-import message.*;
 import service.NetworkService;
 import java.io.IOException;
 import java.net.Socket;
@@ -14,18 +14,18 @@ public class NettyNetworkService implements NetworkService {
 
     private static final String HOST = "localHost";
     private static final int PORT = 8189;
+    private static final int maxObjectSize =2147483647;// размер в байтах макисмального файла для закачки (2Gb)
 
     private static Socket socket;
     private static ObjectEncoderOutputStream outStream;
     private static ObjectDecoderInputStream inStream;
-
 
     @Override
     public void startConnection() {
         try {
             socket = new Socket(HOST, PORT);
             outStream = new ObjectEncoderOutputStream(socket.getOutputStream());
-            inStream = new ObjectDecoderInputStream(socket.getInputStream(),150*1024*1024);
+            inStream = new ObjectDecoderInputStream(socket.getInputStream(),maxObjectSize);
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Unable to connect");
@@ -46,8 +46,6 @@ public class NettyNetworkService implements NetworkService {
     @Override
     public void transferFilesToCloudStorage(String login, Path path) {
         try {
-            System.out.println(login);
-            System.out.println(path);
                 outStream.writeObject(new FileMessage(login, path));
                 outStream.flush();
         } catch (Exception e) {
@@ -115,9 +113,18 @@ public class NettyNetworkService implements NetworkService {
         }
         return false;
     }
-    public Object readIncomingObject() throws IOException, ClassNotFoundException {
-        return inStream.readObject();
-    }
 
+    @Override
+    public Object readIncomingObject() {
+        Object object = null;
+        try {
+            object = inStream.readObject();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return object;
+    }
 
 }
