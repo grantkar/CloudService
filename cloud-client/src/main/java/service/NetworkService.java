@@ -16,7 +16,6 @@ public interface NetworkService {
     // метод отправки файла из локального хранилища в серверное хранилище
     void transferFilesToCloudStorage(String login, Path path);
 
-
     //метод скачивания выбранного файла
     boolean sendDownloadMessage (String fileName, String login);
 
@@ -31,5 +30,10 @@ public interface NetworkService {
 
     //метод отправки сообщения на регистрацию
     boolean sendRegMessageToServer(String login, String password);
+
+    //Метод считывания входящих сообщений
+    Object readIncomingObject();
+
+
 
 }

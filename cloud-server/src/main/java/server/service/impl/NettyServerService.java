@@ -14,6 +14,7 @@ import server.service.impl.handler.ClientMessageHandler;
 public class NettyServerService implements ServerService {
 
     private static final int PORT = 8189;
+    private static final int maxObjectSize =2147483647;// размер в байтах макисмального файла для закачки (2Gb)
     @Override
     public void startServer() {
         EventLoopGroup boss = new NioEventLoopGroup();
@@ -23,7 +24,7 @@ public class NettyServerService implements ServerService {
             sb.group(boss,worker).channel(NioServerSocketChannel.class).childHandler(new ChannelInitializer<SocketChannel>() {
                 @Override
                 protected void initChannel(SocketChannel socketChannel) throws Exception {
-                    socketChannel.pipeline().addLast(new ObjectDecoder(150*1024*1024, ClassResolvers.cacheDisabled(null)),
+                    socketChannel.pipeline().addLast(new ObjectDecoder(maxObjectSize, ClassResolvers.cacheDisabled(null)),
                             new ObjectEncoder(), new ClientMessageHandler());
                 }
             }).option(ChannelOption.SO_BACKLOG, 128).option(ChannelOption.TCP_NODELAY, true).childOption(ChannelOption.SO_KEEPALIVE, true);
@@ -35,6 +36,5 @@ public class NettyServerService implements ServerService {
             boss.shutdownGracefully();
             worker.shutdownGracefully();
         }
-
     }
 }

@@ -3,17 +3,18 @@ package controller;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.util.Callback;
-import message.FileMessage;
-import message.UpdateMessage;
-import model.FileInfo;
+import domain.FileMessage;
+import domain.UpdateMessage;
+import domain.FileInfo;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import service.NetworkService;
 import service.impl.NettyNetworkService;
-import supportClass.CurrentLogin;
+import domain.CurrentLogin;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -25,10 +26,10 @@ public class MainController implements Initializable {
 
 
     private HashMap<Integer, LinkedList<File>> folderCloudStorageListViews;
-    private String myFirstDirectory = "cloud-client" + File.separator + "storage";
+    private final String myFirstDirectory = "cloud-client" + File.separator + "storage";
 
 
-    private NettyNetworkService networkService = new NettyNetworkService();
+    private final NetworkService networkService = new NettyNetworkService();
 
     @FXML
     private TextField pathField;
@@ -189,13 +190,15 @@ public class MainController implements Initializable {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Impossible delete file");
             alert.showAndWait();
         }
+    }
+
+    public void sendDeleteFileFromServer(ActionEvent event) {
+
         FileInfo fileInfoServerItem = filesListOnServer.getSelectionModel().getSelectedItem();
         if (fileInfoServerItem == null || fileInfoServerItem.isDirectory() || fileInfoServerItem.isUpElement()) {
             return;
         }
         networkService.sendDeletionMessage(fileInfoServerItem.getFilename(), CurrentLogin.getCurrentLogin());
-
-        networkService.sendUpdateMessageToServer(CurrentLogin.getCurrentLogin());
     }
 
     public void sendFileToServer(ActionEvent actionEvent) {
@@ -205,7 +208,7 @@ public class MainController implements Initializable {
         } else {
             Path path = root.toAbsolutePath().resolve(fileInfo.getFilename());
             networkService.transferFilesToCloudStorage(CurrentLogin.getCurrentLogin(),path);
-
+            pathField.setText("Please wait, "+ fileInfo.getFilename() + " is being sent to the server!");
             networkService.sendUpdateMessageToServer(CurrentLogin.getCurrentLogin());
         }
     }
@@ -215,12 +218,7 @@ public class MainController implements Initializable {
         if (fileInfo == null || fileInfo.isDirectory() || fileInfo.isUpElement()) {
             return;
         } else {
-         networkService.sendDownloadMessage(fileInfo.getFilename(), CurrentLogin.getCurrentLogin());
-            try {
-                mainPanelServerListener.join(200);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            networkService.sendDownloadMessage(fileInfo.getFilename(), CurrentLogin.getCurrentLogin());
             try {
                 Object object = null;
                 object = networkService.readIncomingObject();
@@ -229,48 +227,31 @@ public class MainController implements Initializable {
                 if (Files.exists(pathToNewFile)) {
                     System.out.println("Файл с таким именем уже существует");
                 } else {
-                    Files.write(Paths.get("cloud-client/storage/download" + File.separator + fileMessage.getFileName()), fileMessage.getData(), StandardOpenOption.CREATE);
+                    Files.write(Paths.get("cloud-client/storage/download" + File.separator +
+                            fileMessage.getFileName()), fileMessage.getData(), StandardOpenOption.CREATE);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
             }
+            filesOnLocalList.refresh();
         }
-        filesOnLocalList.refresh();
     }
-
 
     public void sendUpdateFileToServer(ActionEvent actionEvent) {
         networkService.sendUpdateMessageToServer(CurrentLogin.getCurrentLogin());
+        Object object = null;
+        object = networkService.readIncomingObject();
+        UpdateMessage message = (UpdateMessage) object;
+        folderCloudStorageListViews = new HashMap<>();
+        folderCloudStorageListViews.putAll(message.getCloudStorageContents());
+        Platform.runLater(() -> initializeListOfCloudStorageItems(folderCloudStorageListViews));
         initializeListOfCloudStorageItems(folderCloudStorageListViews);
     }
-
-    Thread mainPanelServerListener = new Thread(new Runnable() {
-        @Override
-        public void run() {
-            while (true){
-                try {
-                    Object object = null;
-                    object = networkService.readIncomingObject();
-                    UpdateMessage message = (UpdateMessage) object;
-                    folderCloudStorageListViews = new HashMap<>();
-                    folderCloudStorageListViews.putAll(message.getCloudStorageContents());
-                    Platform.runLater(() -> initializeListOfCloudStorageItems(folderCloudStorageListViews));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    });
 
 
     public void sendConnectToServer(ActionEvent event) {
         networkService.startConnection();
-        mainPanelServerListener.setDaemon(true);
-        mainPanelServerListener.start();
+        pathField.setText("Connected with server");
     }
 
     public void initializeListOfCloudStorageItems(HashMap<Integer, LinkedList<File>> listOfCloudStorageFiles) {
@@ -279,42 +260,15 @@ public class MainController implements Initializable {
             ObservableList<FileInfo> listOfCloudItems = FXCollections.observableArrayList();
             if (!listOfCloudStorageFiles.isEmpty()) {
                 for (int i = 0; i < listOfCloudStorageFiles.get(0).size(); i++) {
-                    long initialSizeOfCloudFileOrDir = 0;
-                    String nameOfCloudFileOrDir = listOfCloudStorageFiles.get(0).get(i).getName();
-                    if (listOfCloudStorageFiles.get(0).get(i).isDirectory()) {
-                        try {
-                            initialSizeOfCloudFileOrDir = getActualSizeOfFolder(listOfCloudStorageFiles.get(0).get(i));
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        initialSizeOfCloudFileOrDir = listOfCloudStorageFiles.get(0).get(i).length();
-                    }
-
                     File pathOfFileInCloudStorage = new File(listOfCloudStorageFiles.get(0).get(i).getAbsolutePath());
-                    listOfCloudItems.addAll(new FileInfo(nameOfCloudFileOrDir, initialSizeOfCloudFileOrDir, pathOfFileInCloudStorage));
+                    Path path = Paths.get(pathOfFileInCloudStorage.getAbsolutePath());
+                    listOfCloudItems.addAll(new FileInfo(path));
                 }
-                filesListOnServer.setItems(listOfCloudItems);
-
-            } else {
-                filesListOnServer.setItems(listOfCloudItems);
             }
+            filesListOnServer.setItems(listOfCloudItems);
         }catch (NullPointerException e){
             e.printStackTrace();
         }
     }
 
-    public static long getActualSizeOfFolder(File file) throws Exception {
-        long actualSizeOfFolder = 0;
-        if (file.isDirectory()){
-            for (File f: file.listFiles()){
-                if (f.isFile()){
-                    actualSizeOfFolder += f.length();
-                }else if (f.isDirectory()){
-                    actualSizeOfFolder += getActualSizeOfFolder(f);
-                }
-            }
-        }
-        return actualSizeOfFolder;
-    }
 }
