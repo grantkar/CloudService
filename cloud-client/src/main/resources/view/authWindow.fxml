@@ -15,14 +15,14 @@
       <Button fx:id="registration" layoutX="389.0" layoutY="14.0" mnemonicParsing="false" onAction="#showRegistrationForms" prefHeight="26.0" prefWidth="110.0" text="Registration" />
 
       <Button fx:id="enter" layoutX="201.0" layoutY="335.0" mnemonicParsing="false" onAction="#sendAuthMessage" prefHeight="26.0" prefWidth="102.0" text="Enter" />
-      <Button fx:id="cancelRegistrationButton" layoutX="389.0" layoutY="14.0" mnemonicParsing="false" onAction="#cancelRegistration" prefHeight="26.0" prefWidth="110.0" text="Registrtion" />
+      <Button fx:id="cancelRegistrationButton" layoutX="389.0" layoutY="14.0" mnemonicParsing="false" onAction="#cancelRegistration" prefHeight="26.0" prefWidth="110.0" text="Close" visible="false"/>
 
       <PasswordField fx:id="sendPassword" layoutX="163.0" layoutY="274.0" prefHeight="26.0" prefWidth="178.0" promptText="                Password" style="-fx-background-radius: 5;">
          <font>
             <Font size="14.0" />
          </font>
       </PasswordField>
-      <Text fill="#171dc2" layoutX="180.0" layoutY="183.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Authenticity" textAlignment="CENTER" wrappingWidth="140.39999999999986">
+      <Text fill="#171dc2" layoutX="180.0" layoutY="183.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Authenticity" textAlignment="CENTER" wrappingWidth="140.0">
          <font>
             <Font size="22.0" />
          </font>
