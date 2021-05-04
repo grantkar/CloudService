@@ -22,10 +22,9 @@
       <TextField fx:id="pathField" layoutX="13.0" layoutY="53.0" prefHeight="26.0" prefWidth="773.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" />
 
       <Button layoutX="14.0" layoutY="536.0" mnemonicParsing="false" onAction="#sendFileToServer" prefHeight="26.0" prefWidth="158.0" text="SEND" AnchorPane.leftAnchor="10.0" />
-      <Button layoutX="214.0" layoutY="536.0" mnemonicParsing="false" onAction="#deleteAction" prefHeight="26.0" prefWidth="158.0" text="DELETE" AnchorPane.leftAnchor="214.0" />
-      <Button layoutX="426.0" layoutY="536.0" mnemonicParsing="false" onAction="#downloadFileFromServer" prefHeight="26.0" prefWidth="158.0" text="DOWNLOAD" AnchorPane.rightAnchor="216.0" />
-      <Button layoutX="626.0" layoutY="536.0" mnemonicParsing="false" onAction="#renameFileAction" prefHeight="26.0" prefWidth="158.0" text="RENAME" AnchorPane.rightAnchor="10.0" />
-      <Button layoutX="566.0" layoutY="488.0" mnemonicParsing="false" onAction="#sendUpdateFileToServer" prefHeight="26.0" prefWidth="80.0" text="UPDATE" />
+      <Button layoutX="210.0" layoutY="536.0" mnemonicParsing="false" onAction="#deleteAction" prefHeight="26.0" prefWidth="158.0" text="DELETE" AnchorPane.leftAnchor="210.0" />
+      <Button layoutX="431.0" layoutY="536.0" mnemonicParsing="false" onAction="#downloadFileFromServer" prefHeight="26.0" prefWidth="158.0" text="DOWNLOAD" AnchorPane.rightAnchor="210.60000000000002" />
+      <Button layoutX="632.0" layoutY="536.0" mnemonicParsing="false" onAction="#sendUpdateFileToServer" prefHeight="26.0" prefWidth="158.0" text="UPDATE" />
       <Button layoutX="678.0" layoutY="14.0" mnemonicParsing="false" onAction="#sendConnectToServer" prefHeight="26.0" prefWidth="112.0" text="Connect" />
 
       <Text layoutX="158.0" layoutY="115.0" strokeType="OUTSIDE" strokeWidth="0.0" text="My File" textAlignment="CENTER" wrappingWidth="112.0" />

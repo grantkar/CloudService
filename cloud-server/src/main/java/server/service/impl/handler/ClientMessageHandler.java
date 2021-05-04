@@ -2,6 +2,7 @@ package server.service.impl.handler;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.util.Callback;
@@ -29,7 +30,8 @@ public class ClientMessageHandler extends ChannelInboundHandlerAdapter {
                 UpdateMessage updateMessage = (UpdateMessage) msg;
                 String receivedLogin = updateMessage.getLogin();
                 ctx.writeAndFlush(new UpdateMessage(getContentsOfCloudStorage(receivedLogin)));
-            } else if (msg instanceof FileMessage) {
+            } else
+                if (msg instanceof FileMessage) {
                 FileMessage fileMessage = (FileMessage) msg;
                 Path pathToNewFile = Paths.get("cloud-server/cloudStorage/" + fileMessage.getLogin() + File.separator + fileMessage.getFileName());
                 if (fileMessage.isDirectory() && fileMessage.isEmpty()) {
@@ -46,9 +48,29 @@ public class ClientMessageHandler extends ChannelInboundHandlerAdapter {
                     }
                 }
                 ctx.writeAndFlush(new UpdateMessage(getContentsOfCloudStorage(fileMessage.getLogin())));
-            } else if (msg instanceof AuthMessage) {
-                AuthMessage authMessage = (AuthMessage) msg;
-                DBRequestHandler.getConnectionWithDB();
+            } else
+                if (msg instanceof DownloadMessage){
+                DownloadMessage downloadMessage = (DownloadMessage) msg;
+                    Path fileToDownload = Paths.get("cloud-server/cloudStorage/" + downloadMessage.getLogin() + File.separator + downloadMessage.getFileName());
+                    ctx.writeAndFlush(new FileMessage(fileToDownload));
+                    try {
+                        ctx.writeAndFlush(new FileMessage(fileToDownload));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+            } else if (msg instanceof DeletionMessage){
+                    DeletionMessage delete = (DeletionMessage) msg;
+                    Path fileToDelete = Paths.get("cloud-server/cloudStorage/" + delete.getLogin() + File.separator + delete.getFileName());
+                    try {
+                        Files.delete(fileToDelete);
+                    } catch (IOException e){
+                        Alert alert = new Alert(Alert.AlertType.ERROR, "Impossible delete file");
+                        alert.showAndWait();
+                    }
+                } else
+                    if (msg instanceof AuthMessage) {
+                        AuthMessage authMessage = (AuthMessage) msg;
+                        DBRequestHandler.getConnectionWithDB();
                 if (DBRequestHandler.checkIfUserExistsForAuthorization(authMessage.getLogin())) {
                     if (DBRequestHandler.checkIfPasswordIsRight(authMessage.getLogin(), authMessage.getPassword())) {
                         ctx.writeAndFlush("userIsValid/" + authMessage.getLogin());

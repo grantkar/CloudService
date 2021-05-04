@@ -3,6 +3,7 @@ package controller;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.util.Callback;
+import message.FileMessage;
 import message.UpdateMessage;
 import model.FileInfo;
 import javafx.application.Platform;
@@ -13,7 +14,6 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import service.impl.NettyNetworkService;
 import supportClass.CurrentLogin;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -36,7 +36,6 @@ public class MainController implements Initializable {
     @FXML
     private ListView <FileInfo> filesListOnServer;
 
-
     @FXML
     ListView <FileInfo> filesOnLocalList;
 
@@ -52,7 +51,6 @@ public class MainController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         fileToLocalStorage();
-
     }
 
     public void fileToLocalStorage () {
@@ -180,17 +178,24 @@ public class MainController implements Initializable {
     }
 
     public void deleteAction(ActionEvent actionEvent) {
-        FileInfo fileInfo = filesOnLocalList.getSelectionModel().getSelectedItem();
-        if (fileInfo == null || fileInfo.isDirectory() || fileInfo.isUpElement()) {
+        FileInfo fileInfoLocalItem = filesOnLocalList.getSelectionModel().getSelectedItem();
+        if (fileInfoLocalItem == null || fileInfoLocalItem.isDirectory() || fileInfoLocalItem.isUpElement()) {
             return;
         }
         try {
-            Files.delete(root.resolve(fileInfo.getFilename()));
+            Files.delete(root.resolve(fileInfoLocalItem.getFilename()));
             refresh();
         } catch (IOException e) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Impossible delete file");
             alert.showAndWait();
         }
+        FileInfo fileInfoServerItem = filesListOnServer.getSelectionModel().getSelectedItem();
+        if (fileInfoServerItem == null || fileInfoServerItem.isDirectory() || fileInfoServerItem.isUpElement()) {
+            return;
+        }
+        networkService.sendDeletionMessage(fileInfoServerItem.getFilename(), CurrentLogin.getCurrentLogin());
+
+        networkService.sendUpdateMessageToServer(CurrentLogin.getCurrentLogin());
     }
 
     public void sendFileToServer(ActionEvent actionEvent) {
@@ -199,24 +204,45 @@ public class MainController implements Initializable {
             return;
         } else {
             Path path = root.toAbsolutePath().resolve(fileInfo.getFilename());
-            System.out.println(path);
             networkService.transferFilesToCloudStorage(CurrentLogin.getCurrentLogin(),path);
+
+            networkService.sendUpdateMessageToServer(CurrentLogin.getCurrentLogin());
         }
     }
 
     public void downloadFileFromServer(ActionEvent actionEvent) {
-
+        FileInfo fileInfo = filesListOnServer.getSelectionModel().getSelectedItem();
+        if (fileInfo == null || fileInfo.isDirectory() || fileInfo.isUpElement()) {
+            return;
+        } else {
+         networkService.sendDownloadMessage(fileInfo.getFilename(), CurrentLogin.getCurrentLogin());
+            try {
+                mainPanelServerListener.join(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            try {
+                Object object = null;
+                object = networkService.readIncomingObject();
+                FileMessage fileMessage = (FileMessage)object;
+                Path pathToNewFile = Paths.get("cloud-client/storage/download" + File.separator + fileMessage.getFileName());
+                if (Files.exists(pathToNewFile)) {
+                    System.out.println("Файл с таким именем уже существует");
+                } else {
+                    Files.write(Paths.get("cloud-client/storage/download" + File.separator + fileMessage.getFileName()), fileMessage.getData(), StandardOpenOption.CREATE);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        filesOnLocalList.refresh();
     }
 
-    public void renameFileAction(ActionEvent actionEvent) {
-
-    }
 
     public void sendUpdateFileToServer(ActionEvent actionEvent) {
         networkService.sendUpdateMessageToServer(CurrentLogin.getCurrentLogin());
-
-
-
         initializeListOfCloudStorageItems(folderCloudStorageListViews);
     }
 
