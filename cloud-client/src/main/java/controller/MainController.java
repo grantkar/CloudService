@@ -233,8 +233,8 @@ public class MainController implements Initializable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            filesOnLocalList.refresh();
         }
+        goToPath(root);
     }
 
     public void sendUpdateFileToServer(ActionEvent actionEvent) {
