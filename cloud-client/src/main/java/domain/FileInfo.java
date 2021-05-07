@@ -24,7 +24,7 @@ public class FileInfo implements Serializable {
     private static final String BYTE = "byte";
 
 
-    public FileInfo (Path path){
+    public FileInfo(Path path) {
         try {
             this.filename = path.getFileName().toString();
             if (Files.isDirectory(path)) {
@@ -34,10 +34,11 @@ public class FileInfo implements Serializable {
                 this.length = Files.size(path);
             }
         } catch (IOException e) {
-            throw new RuntimeException("Something wrong with file: " +path.toAbsolutePath().toString());
+            throw new RuntimeException("Something wrong with file: " + path.toAbsolutePath().toString());
         }
     }
-    public FileInfo(String filename, long length, File pathToFile){
+
+    public FileInfo(String filename, long length, File pathToFile) {
         this.filename = filename;
         this.length = length;
         this.pathToFile = pathToFile;
@@ -77,15 +78,17 @@ public class FileInfo implements Serializable {
         return fileType;
     }
 
-    public Long getFileSize (long length) {
+    public Long getFileSize(long length) {
 
         if (length / GigaByte > 0) {
             filename = GB;
             return length / GigaByte;
-        } if (length / MegaByte > 0) {
+        }
+        if (length / MegaByte > 0) {
             fileType = MB;
             return length / MegaByte;
-        } if (length / KiloByte > 0) {
+        }
+        if (length / KiloByte > 0) {
             fileType = KB;
             return length / KiloByte;
         } else {

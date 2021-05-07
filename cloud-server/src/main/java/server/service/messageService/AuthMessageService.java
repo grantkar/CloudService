@@ -18,9 +18,9 @@ public class AuthMessageService {
         dbRequestService.getConnectionWithDB();
         if (dbRequestService.checkIfUserExistsForAuthorization(authMessage.getLogin())) {
             if (dbRequestService.checkIfPasswordIsRight(authMessage.getLogin(), authMessage.getPassword())) {
-               message ="userIsValid/" + authMessage.getLogin();
+                message = "userIsValid/" + authMessage.getLogin();
             } else {
-                message ="wrongPassword";
+                message = "wrongPassword";
             }
         } else {
             message = "userDoesNotExist";

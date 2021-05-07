@@ -1,6 +1,5 @@
 package server.service.messageService;
 
-
 import domain.UpdateMessage;
 
 public class UpdateMessageService {
@@ -13,8 +12,7 @@ public class UpdateMessageService {
         updateMessage = (UpdateMessage) msg;
     }
 
-
-    public String update(){
+    public String update() {
         String receivedLogin = updateMessage.getLogin();
         return receivedLogin;
     }

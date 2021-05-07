@@ -4,17 +4,16 @@ import domain.*;
 import io.netty.handler.codec.serialization.ObjectDecoderInputStream;
 import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
 import service.NetworkService;
+
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.file.Path;
-
-
 
 public class NettyNetworkService implements NetworkService {
 
     private static final String HOST = "localHost";
     private static final int PORT = 8189;
-    private static final int maxObjectSize =2147483647;// размер в байтах макисмального файла для закачки (2Gb)
+    private static final int maxObjectSize = 2147483647;// размер в байтах макисмального файла для закачки (2Gb)
 
     private static Socket socket;
     private static ObjectEncoderOutputStream outStream;
@@ -25,7 +24,7 @@ public class NettyNetworkService implements NetworkService {
         try {
             socket = new Socket(HOST, PORT);
             outStream = new ObjectEncoderOutputStream(socket.getOutputStream());
-            inStream = new ObjectDecoderInputStream(socket.getInputStream(),maxObjectSize);
+            inStream = new ObjectDecoderInputStream(socket.getInputStream(), maxObjectSize);
         } catch (IOException e) {
             e.printStackTrace();
             System.out.println("Unable to connect");
@@ -46,8 +45,8 @@ public class NettyNetworkService implements NetworkService {
     @Override
     public void transferFilesToCloudStorage(String login, Path path) {
         try {
-                outStream.writeObject(new FileMessage(login, path));
-                outStream.flush();
+            outStream.writeObject(new FileMessage(login, path));
+            outStream.flush();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -56,9 +55,9 @@ public class NettyNetworkService implements NetworkService {
     @Override
     public boolean sendDownloadMessage(String fileName, String login) {
         try {
-                outStream.writeObject(new DownloadMessage(fileName,login));
-                outStream.flush();
-                return true;
+            outStream.writeObject(new DownloadMessage(fileName, login));
+            outStream.flush();
+            return true;
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -67,7 +66,7 @@ public class NettyNetworkService implements NetworkService {
     }
 
     @Override
-    public boolean sendUpdateMessageToServer(String login){
+    public boolean sendUpdateMessageToServer(String login) {
         try {
             outStream.writeObject(new UpdateMessage(login));
             outStream.flush();
@@ -79,7 +78,7 @@ public class NettyNetworkService implements NetworkService {
     }
 
     @Override
-    public boolean sendDeletionMessage(String fileName, String login){
+    public boolean sendDeletionMessage(String fileName, String login) {
         try {
             outStream.writeObject(new DeletionMessage(fileName, login));
             outStream.flush();
@@ -93,7 +92,7 @@ public class NettyNetworkService implements NetworkService {
     @Override
     public boolean sendAuthMessageToServer(String login, String password) {
         try {
-            outStream.writeObject(new AuthMessage(login,password));
+            outStream.writeObject(new AuthMessage(login, password));
             outStream.flush();
             return true;
         } catch (IOException e) {
@@ -105,7 +104,7 @@ public class NettyNetworkService implements NetworkService {
     @Override
     public boolean sendRegMessageToServer(String login, String password) {
         try {
-            outStream.writeObject(new RegistrationMessage(login,password));
+            outStream.writeObject(new RegistrationMessage(login, password));
             outStream.flush();
             return true;
         } catch (IOException e) {
@@ -119,9 +118,7 @@ public class NettyNetworkService implements NetworkService {
         Object object = null;
         try {
             object = inStream.readObject();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (ClassNotFoundException | IOException e) {
             e.printStackTrace();
         }
         return object;

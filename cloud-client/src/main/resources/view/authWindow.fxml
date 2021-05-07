@@ -4,37 +4,47 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane prefHeight="500.0" prefWidth="500.0" style="-fx-background-color: 2E3348;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.MainAuthController">
-   <children>
-      <TextField fx:id="sendLogin" layoutX="161.0" layoutY="219.0" prefHeight="26.0" prefWidth="178.0" promptText="                Login" style="-fx-background-radius: 5;">
-         <font>
-            <Font size="14.0" />
-         </font>
-      </TextField>
+<AnchorPane prefHeight="500.0" prefWidth="500.0" style="-fx-background-color: 2E3348;"
+            xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controller.MainAuthController">
+    <children>
+        <TextField fx:id="sendLogin" layoutX="161.0" layoutY="219.0" prefHeight="26.0" prefWidth="178.0"
+                   promptText="                Login" style="-fx-background-radius: 5;">
+            <font>
+                <Font size="14.0"/>
+            </font>
+        </TextField>
 
-      <Button fx:id="registration" layoutX="389.0" layoutY="14.0" mnemonicParsing="false" onAction="#showRegistrationForms" prefHeight="26.0" prefWidth="110.0" text="Registration" />
+        <Button fx:id="registration" layoutX="389.0" layoutY="14.0" mnemonicParsing="false"
+                onAction="#showRegistrationForms" prefHeight="26.0" prefWidth="110.0" text="Registration"/>
 
-      <Button fx:id="enter" layoutX="201.0" layoutY="335.0" mnemonicParsing="false" onAction="#sendAuthMessage" prefHeight="26.0" prefWidth="102.0" text="Enter" />
-      <Button fx:id="cancelRegistrationButton" layoutX="389.0" layoutY="14.0" mnemonicParsing="false" onAction="#cancelRegistration" prefHeight="26.0" prefWidth="110.0" text="Close" visible="false"/>
+        <Button fx:id="enter" layoutX="201.0" layoutY="335.0" mnemonicParsing="false" onAction="#sendAuthMessage"
+                prefHeight="26.0" prefWidth="102.0" text="Enter"/>
+        <Button fx:id="cancelRegistrationButton" layoutX="389.0" layoutY="14.0" mnemonicParsing="false"
+                onAction="#cancelRegistration" prefHeight="26.0" prefWidth="110.0" text="Close" visible="false"/>
 
-      <PasswordField fx:id="sendPassword" layoutX="163.0" layoutY="274.0" prefHeight="26.0" prefWidth="178.0" promptText="                Password" style="-fx-background-radius: 5;">
-         <font>
-            <Font size="14.0" />
-         </font>
-      </PasswordField>
-      <Text fill="#171dc2" layoutX="180.0" layoutY="183.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Authenticity" textAlignment="CENTER" wrappingWidth="140.0">
-         <font>
-            <Font size="22.0" />
-         </font>
-      </Text>
-      <VBox fx:id="registrationBlock" layoutX="338.0" layoutY="59.0" prefHeight="154.0" prefWidth="161.0" visible="false">
-         <children>
-            <TextField fx:id="registrationLoginForm" promptText="                Login" />
-            <PasswordField fx:id="registrationPassForm" promptText="             Password" />
-            <PasswordField fx:id="repeatPassForm" promptText="             Password" />
-            <Button fx:id="finalRegistrationButton" mnemonicParsing="false" onAction="#sendRegMessageToServer" prefHeight="26.0" prefWidth="164.0" text="Registration" visible="false" />
-         </children>
-      </VBox>
+        <PasswordField fx:id="sendPassword" layoutX="163.0" layoutY="274.0" prefHeight="26.0" prefWidth="178.0"
+                       promptText="                Password" style="-fx-background-radius: 5;">
+            <font>
+                <Font size="14.0"/>
+            </font>
+        </PasswordField>
+        <Text fill="#171dc2" layoutX="180.0" layoutY="183.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Authenticity"
+              textAlignment="CENTER" wrappingWidth="140.0">
+            <font>
+                <Font size="22.0"/>
+            </font>
+        </Text>
+        <VBox fx:id="registrationBlock" layoutX="338.0" layoutY="59.0" prefHeight="154.0" prefWidth="161.0"
+              visible="false">
+            <children>
+                <TextField fx:id="registrationLoginForm" promptText="                Login"/>
+                <PasswordField fx:id="registrationPassForm" promptText="             Password"/>
+                <PasswordField fx:id="repeatPassForm" promptText="             Password"/>
+                <Button fx:id="finalRegistrationButton" mnemonicParsing="false" onAction="#sendRegMessageToServer"
+                        prefHeight="26.0" prefWidth="164.0" text="Registration" visible="false"/>
+            </children>
+        </VBox>
 
-   </children>
+    </children>
 </AnchorPane>

@@ -12,7 +12,8 @@ public class UpdateMessage implements Serializable {
     public UpdateMessage(HashMap<Integer, LinkedList<File>> cloudStorageContents) {
         this.cloudStorageContents = cloudStorageContents;
     }
-    public UpdateMessage(String login){
+
+    public UpdateMessage(String login) {
         this.login = login;
     }
 

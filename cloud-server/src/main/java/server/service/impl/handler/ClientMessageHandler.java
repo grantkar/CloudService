@@ -17,35 +17,33 @@ public class ClientMessageHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (msg == null) {
-            return;
-        } else {
+        if (msg != null) {
             if (msg instanceof UpdateMessage) {
                 ctx.writeAndFlush(new UpdateMessage(getContentsOfCloudStorage(new UpdateMessageService(msg).update())));
-            } else
-                if (msg instanceof FileMessage) {
-                    FileMessageService fileMessageService =  new FileMessageService(msg);
-                    ctx.writeAndFlush(new UpdateMessage(getContentsOfCloudStorage(fileMessageService.getLogin())));
-            } else
-                if (msg instanceof DownloadMessage){
-                    DownloadMessageService downloadFile = new DownloadMessageService(msg);
-                    try {
-                        ctx.writeAndFlush(new FileMessage(downloadFile.getFileToDownload()));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-            } else if (msg instanceof DeletionMessage){
-                    DeletionMessageService delete = new DeletionMessageService(msg);
-                    ctx.writeAndFlush(new UpdateMessage(getContentsOfCloudStorage(delete.getLogin())));
-                } else
-                    if (msg instanceof AuthMessage) {
-                       AuthMessageService authMessageService = new AuthMessageService(msg);
-                    ctx.writeAndFlush(authMessageService.getMessage());
+            } else if (msg instanceof FileMessage) {
+                FileMessageService fileMessageService = new FileMessageService(msg);
+                ctx.writeAndFlush(new UpdateMessage(getContentsOfCloudStorage(fileMessageService.getLogin())));
+            } else if (msg instanceof DownloadMessage) {
+                DownloadMessageService downloadFile = new DownloadMessageService(msg);
+                extracted(ctx, downloadFile);
+            } else if (msg instanceof DeletionMessage) {
+                DeletionMessageService delete = new DeletionMessageService(msg);
+                ctx.writeAndFlush(new UpdateMessage(getContentsOfCloudStorage(delete.getLogin())));
+            } else if (msg instanceof AuthMessage) {
+                AuthMessageService authMessageService = new AuthMessageService(msg);
+                ctx.writeAndFlush(authMessageService.getMessage());
             } else if (msg instanceof RegistrationMessage) {
-                        RegistrationMessageService regMessage = new RegistrationMessageService(msg);
-                        ctx.writeAndFlush(regMessage.getMessage());
+                RegistrationMessageService regMessage = new RegistrationMessageService(msg);
+                ctx.writeAndFlush(regMessage.getMessage());
             }
+        }
+    }
+
+    private void extracted(ChannelHandlerContext ctx, DownloadMessageService downloadFile) {
+        try {
+            ctx.writeAndFlush(new FileMessage(downloadFile.getFileToDownload()));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -72,6 +70,7 @@ public class ClientMessageHandler extends ChannelInboundHandlerAdapter {
         File path = new File("cloud-server/CloudStorage/" + login);
         File[] files = path.listFiles();
         cloudStorageContents = new HashMap<>();
+        assert files != null;
         if (files.length == 0) {
             return cloudStorageContents;
         } else {
