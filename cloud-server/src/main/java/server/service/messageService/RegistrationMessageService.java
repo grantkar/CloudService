@@ -17,7 +17,7 @@ public class RegistrationMessageService {
         this.msg = msg;
         regMessage = (RegistrationMessage) msg;
 
-       dbRequestService.getConnectionWithDB();
+        dbRequestService.getConnectionWithDB();
         if (dbRequestService.checkIfUserExistsForAuthorization(regMessage.getLogin())) {
             message = "userAlreadyExists";
         } else {

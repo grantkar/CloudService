@@ -15,6 +15,7 @@ import javafx.scene.input.MouseEvent;
 import service.NetworkService;
 import service.impl.NettyNetworkService;
 import domain.CurrentLogin;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -24,10 +25,8 @@ import java.util.stream.Collectors;
 
 public class MainController implements Initializable {
 
-
     private HashMap<Integer, LinkedList<File>> folderCloudStorageListViews;
     private final String myFirstDirectory = "cloud-client" + File.separator + "storage";
-
 
     private final NetworkService networkService = new NettyNetworkService();
 
@@ -35,10 +34,10 @@ public class MainController implements Initializable {
     private TextField pathField;
 
     @FXML
-    private ListView <FileInfo> filesListOnServer;
+    private ListView<FileInfo> filesListOnServer;
 
     @FXML
-    ListView <FileInfo> filesOnLocalList;
+    ListView<FileInfo> filesOnLocalList;
 
     Path root;
     Path selectedCopyFile;
@@ -54,25 +53,25 @@ public class MainController implements Initializable {
         fileToLocalStorage();
     }
 
-    public void fileToLocalStorage () {
+    public void fileToLocalStorage() {
 
         filesOnLocalList.setCellFactory(new Callback<ListView<FileInfo>, ListCell<FileInfo>>() {
             @Override
             public ListCell<FileInfo> call(ListView<FileInfo> param) {
-                return new ListCell<FileInfo>(){
+                return new ListCell<FileInfo>() {
                     @Override
                     protected void updateItem(FileInfo item, boolean empty) {
                         super.updateItem(item, empty);
-                        if (item == null || empty){
+                        if (item == null || empty) {
                             setText(null);
                             setStyle("");
                         } else {
                             String formattedFileName = String.format("%-20s", item.getFilename());
                             String formattedFileLength = String.format("%d%s", item.getFileSize(item.getLength()), item.getFileType());
-                            if (item.getLength() == -1L){
+                            if (item.getLength() == -1L) {
                                 formattedFileLength = String.format("%s", "[ DIR ]");
                             }
-                            if (item.getLength() == -2L){
+                            if (item.getLength() == -2L) {
                                 formattedFileLength = "";
                             }
                             String text = String.format("%s %-20s", formattedFileName, formattedFileLength);
@@ -87,20 +86,20 @@ public class MainController implements Initializable {
         filesListOnServer.setCellFactory(new Callback<ListView<FileInfo>, ListCell<FileInfo>>() {
             @Override
             public ListCell<FileInfo> call(ListView<FileInfo> param) {
-                return new ListCell<FileInfo>(){
+                return new ListCell<FileInfo>() {
                     @Override
                     protected void updateItem(FileInfo item, boolean empty) {
                         super.updateItem(item, empty);
-                        if (item == null || empty){
+                        if (item == null || empty) {
                             setText(null);
                             setStyle("");
                         } else {
                             String formattedFileName = String.format("%-20s", item.getFilename());
                             String formattedFileLength = String.format("%d%s", item.getFileSize(item.getLength()), item.getFileType());
-                            if (item.getLength() == -1L){
+                            if (item.getLength() == -1L) {
                                 formattedFileLength = String.format("%s", "[ DIR ]");
                             }
-                            if (item.getLength() == -2L){
+                            if (item.getLength() == -2L) {
                                 formattedFileLength = "";
                             }
                             String text = String.format("%s %-20s", formattedFileName, formattedFileLength);
@@ -122,20 +121,21 @@ public class MainController implements Initializable {
             if (o1.getFilename().equals(FileInfo.UP_TOKEN)) {
                 return -1;
             }
-            if ((int) Math.signum(o1.getLength()) == (int) Math.signum(o2.getLength())){
+            if ((int) Math.signum(o1.getLength()) == (int) Math.signum(o2.getLength())) {
                 return o1.getFilename().compareTo(o2.getFilename());
             }
-            return new Long(o1.getLength()-o2.getLength()).intValue();
+            return new Long(o1.getLength() - o2.getLength()).intValue();
         });
     }
 
-    public List<FileInfo> scanFiles (Path root) {
+    public List<FileInfo> scanFiles(Path root) {
         try {
-          return Files.list(root).map(FileInfo::new).collect(Collectors.toList());
+            return Files.list(root).map(FileInfo::new).collect(Collectors.toList());
         } catch (IOException e) {
-            throw new RuntimeException("Files scan exception: " +root);
+            throw new RuntimeException("Files scan exception: " + root);
         }
     }
+
     public void filesListClicked(MouseEvent mouseEvent) {
         if (mouseEvent.getClickCount() == 2) {
             FileInfo fileInfo = filesOnLocalList.getSelectionModel().getSelectedItem();
@@ -158,57 +158,54 @@ public class MainController implements Initializable {
 
     public void copyAction(ActionEvent actionEvent) {
         FileInfo fileInfo = filesOnLocalList.getSelectionModel().getSelectedItem();
-        if (selectedCopyFile ==null && (fileInfo == null || fileInfo.isDirectory() || fileInfo.isUpElement())) {
+        if (selectedCopyFile == null && (!isFileInfoChecked(fileInfo))) {
             return;
         }
         if (selectedCopyFile == null) {
             selectedCopyFile = root.resolve(fileInfo.getFilename());
             pathField.setText("Перейдите в папку, куда нужно скопировать выбранный файл, и снова нажмите File -> Copy");
-            return;
+        } else {
+            extracted();
         }
-       if (selectedCopyFile != null) {
-           try {
-               Files.copy(selectedCopyFile,root.resolve(selectedCopyFile.getFileName()), StandardCopyOption.REPLACE_EXISTING);
-               selectedCopyFile = null;
-               refresh();
-           } catch (IOException e) {
-               Alert alert = new Alert(Alert.AlertType.ERROR, "Impossible copy file");
-               alert.showAndWait();
-           }
-       }
     }
 
-    public void deleteAction(ActionEvent actionEvent) {
-        FileInfo fileInfoLocalItem = filesOnLocalList.getSelectionModel().getSelectedItem();
-        if (fileInfoLocalItem == null || fileInfoLocalItem.isDirectory() || fileInfoLocalItem.isUpElement()) {
-            return;
-        }
+    private void extracted() {
         try {
-            Files.delete(root.resolve(fileInfoLocalItem.getFilename()));
+            Files.copy(selectedCopyFile, root.resolve(selectedCopyFile.getFileName()), StandardCopyOption.REPLACE_EXISTING);
+            selectedCopyFile = null;
             refresh();
         } catch (IOException e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Impossible delete file");
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Impossible copy file");
             alert.showAndWait();
         }
     }
 
-    public void sendDeleteFileFromServer(ActionEvent event) {
-
-        FileInfo fileInfoServerItem = filesListOnServer.getSelectionModel().getSelectedItem();
-        if (fileInfoServerItem == null || fileInfoServerItem.isDirectory() || fileInfoServerItem.isUpElement()) {
-            return;
+    public void deleteAction(ActionEvent actionEvent) {
+        FileInfo fileInfoLocalItem = filesOnLocalList.getSelectionModel().getSelectedItem();
+        if (isFileInfoChecked(fileInfoLocalItem)) {
+            try {
+                Files.delete(root.resolve(fileInfoLocalItem.getFilename()));
+                refresh();
+            } catch (IOException e) {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Impossible delete file");
+                alert.showAndWait();
+            }
         }
-        networkService.sendDeletionMessage(fileInfoServerItem.getFilename(), CurrentLogin.getCurrentLogin());
+    }
+
+    public void sendDeleteFileFromServer(ActionEvent event) {
+        FileInfo fileInfoServerItem = filesListOnServer.getSelectionModel().getSelectedItem();
+        if (isFileInfoChecked(fileInfoServerItem)) {
+            networkService.sendDeletionMessage(fileInfoServerItem.getFilename(), CurrentLogin.getCurrentLogin());
+        }
     }
 
     public void sendFileToServer(ActionEvent actionEvent) {
         FileInfo fileInfo = filesOnLocalList.getSelectionModel().getSelectedItem();
-        if (fileInfo == null || fileInfo.isDirectory() || fileInfo.isUpElement()) {
-            return;
-        } else {
+        if (isFileInfoChecked(fileInfo)) {
             Path path = root.toAbsolutePath().resolve(fileInfo.getFilename());
-            networkService.transferFilesToCloudStorage(CurrentLogin.getCurrentLogin(),path);
-            pathField.setText("Please wait, "+ fileInfo.getFilename() + " is being sent to the server!");
+            networkService.transferFilesToCloudStorage(CurrentLogin.getCurrentLogin(), path);
+            pathField.setText("Please wait, " + fileInfo.getFilename() + " is being sent to the server!");
             networkService.sendUpdateMessageToServer(CurrentLogin.getCurrentLogin());
         }
     }
@@ -222,7 +219,7 @@ public class MainController implements Initializable {
             try {
                 Object object = null;
                 object = networkService.readIncomingObject();
-                FileMessage fileMessage = (FileMessage)object;
+                FileMessage fileMessage = (FileMessage) object;
                 Path pathToNewFile = Paths.get("cloud-client/storage/download" + File.separator + fileMessage.getFileName());
                 if (Files.exists(pathToNewFile)) {
                     System.out.println("Файл с таким именем уже существует");
@@ -266,8 +263,16 @@ public class MainController implements Initializable {
                 }
             }
             filesListOnServer.setItems(listOfCloudItems);
-        }catch (NullPointerException e){
+        } catch (NullPointerException e) {
             e.printStackTrace();
+        }
+    }
+
+    public boolean isFileInfoChecked(FileInfo fileInfo) {
+        if (fileInfo == null || fileInfo.isDirectory() || fileInfo.isUpElement()) {
+            return false;
+        } else {
+            return true;
         }
     }
 

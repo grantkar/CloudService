@@ -1,5 +1,6 @@
 package controller;
 
+import factory.Factory;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -19,13 +20,13 @@ import domain.CurrentLogin;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 public class MainAuthController implements Initializable {
 
 
-
-    NetworkService networkService = new NettyNetworkService();
+    NetworkService networkService = Factory.getNetworkService();
 
     @FXML
     Button finalRegistrationButton;
@@ -58,15 +59,16 @@ public class MainAuthController implements Initializable {
     public void switchScenes(String login) throws IOException {
         Stage stage;
         Parent root;
-        stage = (Stage)enter.getScene().getWindow();
-        root = FXMLLoader.load(getClass().getResource("/view/mainWindow.fxml"));
+        stage = (Stage) enter.getScene().getWindow();
+        root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/view/mainWindow.fxml")));
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.setResizable(false);
-        stage.setTitle("Cloud Service"+ File.separator +""+login);
+        stage.setTitle("Cloud Service" + File.separator + "" + login);
         stage.show();
     }
-    public void authorizeAndSwitchToMainPanel(String login){
+
+    public void authorizeAndSwitchToMainPanel(String login) {
         Platform.runLater(() -> {
             try {
                 switchScenes(login);
@@ -77,36 +79,29 @@ public class MainAuthController implements Initializable {
     }
 
     Thread OpeningPanelServerListener = new Thread(() -> {
-        for (;;){
+        for (; ; ) {
             Object serverMessage = null;
             serverMessage = networkService.readIncomingObject();
-            if (serverMessage.toString().startsWith("userIsValid/")){
+            if (serverMessage.toString().startsWith("userIsValid/")) {
                 String[] receivedWords = serverMessage.toString().split("/");
                 String login = receivedWords[1];
                 CurrentLogin.setCurrentLogin(login);
                 authorizeAndSwitchToMainPanel(login);
-            }else if (serverMessage.toString().startsWith("wrongPassword")){
-
-                    System.out.println("Wrong password");
-            }else if (serverMessage.toString().startsWith("userDoesNotExist")){
-
-                    System.out.println("Such user does not exist");
-
-
-            }else if (serverMessage.toString().equals("userAlreadyExists")){
-
-                    System.out.println("Such user already exists");
-
-
-            } else if (serverMessage.toString().equals("registrationIsSuccessful")){
+            } else if (serverMessage.toString().startsWith("wrongPassword")) {
+                System.out.println("Wrong password");
+            } else if (serverMessage.toString().startsWith("userDoesNotExist")) {
+                System.out.println("Such user does not exist");
+            } else if (serverMessage.toString().equals("userAlreadyExists")) {
+                System.out.println("Such user already exists");
+            } else if (serverMessage.toString().equals("registrationIsSuccessful")) {
                 System.out.println("Registration OK");
             }
         }
     });
 
     public void sendAuthMessage(ActionEvent event) {
-        if (!sendLogin.getText().isEmpty() && !sendPassword.getText().isEmpty()){
-            networkService.sendAuthMessageToServer(sendLogin.getText(),sendPassword.getText());
+        if (!sendLogin.getText().isEmpty() && !sendPassword.getText().isEmpty()) {
+            networkService.sendAuthMessageToServer(sendLogin.getText(), sendPassword.getText());
             sendLogin.clear();
             sendPassword.clear();
         }
@@ -130,10 +125,10 @@ public class MainAuthController implements Initializable {
     }
 
     public void sendRegMessageToServer(ActionEvent event) {
-        if (!registrationLoginForm.getText().isEmpty() && !registrationPassForm.getText().isEmpty() && !repeatPassForm.getText().isEmpty()){
-            if (registrationPassForm.getText().equals(repeatPassForm.getText())){
-                networkService.sendRegMessageToServer(registrationLoginForm.getText(),repeatPassForm.getText());
-            }else {
+        if (!registrationLoginForm.getText().isEmpty() && !registrationPassForm.getText().isEmpty() && !repeatPassForm.getText().isEmpty()) {
+            if (registrationPassForm.getText().equals(repeatPassForm.getText())) {
+                networkService.sendRegMessageToServer(registrationLoginForm.getText(), repeatPassForm.getText());
+            } else {
                 System.out.println("You've entered unequal passwords");
                 registrationPassForm.clear();
                 repeatPassForm.clear();

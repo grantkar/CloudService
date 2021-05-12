@@ -14,14 +14,15 @@ import server.service.impl.handler.ClientMessageHandler;
 public class NettyServerService implements ServerService {
 
     private static final int PORT = 8189;
-    private static final int maxObjectSize =2147483647;// размер в байтах макисмального файла для закачки (2Gb)
+    private static final int maxObjectSize = 2147483647;// размер в байтах макисмального файла для закачки (2Gb)
+
     @Override
     public void startServer() {
         EventLoopGroup boss = new NioEventLoopGroup();
         EventLoopGroup worker = new NioEventLoopGroup();
         try {
             ServerBootstrap sb = new ServerBootstrap();
-            sb.group(boss,worker).channel(NioServerSocketChannel.class).childHandler(new ChannelInitializer<SocketChannel>() {
+            sb.group(boss, worker).channel(NioServerSocketChannel.class).childHandler(new ChannelInitializer<SocketChannel>() {
                 @Override
                 protected void initChannel(SocketChannel socketChannel) throws Exception {
                     socketChannel.pipeline().addLast(new ObjectDecoder(maxObjectSize, ClassResolvers.cacheDisabled(null)),
@@ -32,7 +33,7 @@ public class NettyServerService implements ServerService {
             cf.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             boss.shutdownGracefully();
             worker.shutdownGracefully();
         }

@@ -4,7 +4,6 @@ import server.service.DBService;
 
 import java.sql.*;
 
-
 public class DBRequestService implements DBService {
 
     private static Connection connection;
@@ -12,7 +11,6 @@ public class DBRequestService implements DBService {
 
     @Override
     public void getConnectionWithDB() {
-
         try {
             connection = DriverManager.getConnection("jdbc:sqlite:users.db");
             statement = connection.createStatement();
@@ -23,13 +21,8 @@ public class DBRequestService implements DBService {
 
     @Override
     public void disconnectDB() {
-
         try {
             statement.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        try {
             connection.close();
         } catch (SQLException e) {
             e.printStackTrace();

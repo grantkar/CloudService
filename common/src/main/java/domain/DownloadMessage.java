@@ -2,7 +2,6 @@ package domain;
 
 import java.io.Serializable;
 
-
 public class DownloadMessage implements Serializable {
 
     private String fileName;

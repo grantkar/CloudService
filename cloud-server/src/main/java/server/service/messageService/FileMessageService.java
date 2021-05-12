@@ -24,28 +24,36 @@ public class FileMessageService {
             if (Files.exists(pathToNewFile)) {
                 System.out.println("Файл с таким именем уже существует");
             } else {
-                try {
-                    Files.createDirectory(pathToNewFile);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                extracted(pathToNewFile);
             }
         } else {
             if (Files.exists(pathToNewFile)) {
                 System.out.println("Файл с таким именем уже существует");
             } else {
-                try {
-                    Files.write(Paths.get("cloud-server/cloudStorage/" +
-                            fileMessage.getLogin() + File.separator + fileMessage.getFileName()),
-                            fileMessage.getData(), StandardOpenOption.CREATE);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                extracted(fileMessage);
             }
         }
     }
 
-    public String getLogin (){
+    private void extracted(FileMessage fileMessage) {
+        try {
+            Files.write(Paths.get("cloud-server/cloudStorage/" +
+                    fileMessage.getLogin() + File.separator + fileMessage.getFileName()),
+                    fileMessage.getData(), StandardOpenOption.CREATE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void extracted(Path pathToNewFile) {
+        try {
+            Files.createDirectory(pathToNewFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String getLogin() {
         return fileMessage.getLogin();
     }
 }
